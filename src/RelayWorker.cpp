@@ -6,7 +6,7 @@
  * See full license text in LICENSE file at top of project tree
  */
 
-#include <netinet/in.h>
+//#include <netinet/in.h>
 #include <utility>
 
 #include "Packet.h"

@@ -31,13 +31,13 @@ static const char *g_LogLevelStr[eNumLogLevels] = {
  * @brief Colorize log output -- array of terminal control sequences
  * @note Using ISO 6429 (ANSI) color sequences
  */
-static const char *LogMsgColors[] = {
-    [eLogNone] = "\033[0m",       /* reset */
-    [eLogError] = "\033[1;31m",   /* red */
-    [eLogWarning] = "\033[1;33m", /* yellow */
-    [eLogInfo] = "\033[1;36m",    /* cyan */
-    [eLogDebug] = "\033[1;34m",   /* blue */
-    [eNumLogLevels] = "\033[0m",  /* reset */
+static const char* LogMsgColors[] = {
+    "\033[0m",       /* reset */
+    "\033[1;31m",   /* red */
+    "\033[1;33m", /* yellow */
+    "\033[1;36m",    /* cyan */
+    "\033[1;34m",   /* blue */
+    "\033[0m",  /* reset */
 };
 
 /**
@@ -79,7 +79,8 @@ void Logging::Start() {
 
 void Logging::Stop() {
   switch (m_Destination) {
-    case eLogSyslog:closelog();
+    case eLogSyslog:
+        //closelog();
       break;
     case eLogFile:
     case eLogStream:

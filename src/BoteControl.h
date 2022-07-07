@@ -11,8 +11,11 @@
 
 #include <map>
 #include <string>
-#include <sys/socket.h>
-#include <sys/un.h>
+//#include <sys/socket.h>
+//#include <sys/un.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <afunix.h>
 #include <thread>
 
 #include "i2psam.h"
@@ -65,7 +68,7 @@ private:
 
   const std::string socket_path;
   int conn_sockfd, data_sockfd;
-  struct sockaddr_un conn_addr, data_addr;
+  SOCKADDR_UN conn_addr, data_addr;
 
   std::map<std::string, Handler> handlers;
 };

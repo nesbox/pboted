@@ -107,7 +107,7 @@ class BoteContext
 
   std::vector<std::shared_ptr<PacketBatch<pbote::CommunicationPacket>>> runningBatches;
 
-  std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint8_t> rbe;
+  std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint16_t> rbe;
 };
 
 extern BoteContext context;

@@ -102,7 +102,7 @@ bool Daemon_Singleton::init(int argc, char *argv[],
     pbote::log::Logger().SendTo(logfile);
   } else if (logs == "syslog") {
     LogPrint(eLogInfo, "Log: Will send messages to syslog");
-    pbote::log::Logger().SendTo("pboted", LOG_DAEMON);
+    //pbote::log::Logger().SendTo("pboted", LOG_DAEMON);
   } else {
     // use stdout -- default
   }

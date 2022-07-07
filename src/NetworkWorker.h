@@ -12,10 +12,11 @@
 #include <algorithm>
 #include <ctime>
 #include <iostream>
-#include <netinet/in.h>
+//#include <netinet/in.h>
+#include <WinSock2.h>
 #include <sstream>
 #include <string>
-#include <sys/socket.h>
+//#include <sys/socket.h>
 #include <sys/types.h>
 #include <utility>
 

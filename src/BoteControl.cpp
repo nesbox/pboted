@@ -113,14 +113,14 @@ BoteControl::run ()
           //LogPrint (eLogDebug, "BoteControl: run: Received new connection");
           handle_request ();
         }
-        ::close(data_sockfd);
+        ::closesocket(data_sockfd);
     }
 }
 
 void
 BoteControl::write_data (const std::string &msg)
 {
-  ssize_t sent_bytes = write (data_sockfd, msg.c_str (), msg.length ());
+  ssize_t sent_bytes = send(data_sockfd, msg.c_str (), msg.length (), 0);
   if (sent_bytes == SOCKET_ERROR)
     {
       LogPrint (eLogError, "BoteControl: write: Failed to send data");
@@ -139,7 +139,7 @@ BoteControl::read_data ()
   char buffer[BUFF_SIZE];
   memset (buffer, 0, BUFF_SIZE);
 
-  ssize_t recieved_bytes = read (data_sockfd, buffer, BUFF_SIZE);
+  ssize_t recieved_bytes = recv(data_sockfd, buffer, BUFF_SIZE, 0);
   if (recieved_bytes == SOCKET_ERROR)
     {
       LogPrint (eLogError, "BoteControl: write: Failed to read data");
@@ -165,7 +165,7 @@ BoteControl::close ()
 {
   if (conn_sockfd != (int)INVALID_SOCKET)
     {
-      ::close (conn_sockfd);
+      ::closesocket (conn_sockfd);
       conn_sockfd = INVALID_SOCKET;
       unlink (socket_path.c_str ());
     }

@@ -33,9 +33,21 @@ FILE(GLOB LIBI2PD_SRC ${LIBI2PD_SRC_DIR}/*.cpp)
 add_library(libi2pd ${LIBI2PD_SRC})
 set_target_properties(libi2pd PROPERTIES PREFIX "")
 
+if(MSVC)
+    target_compile_definitions(libi2pd PRIVATE 
+        ssize_t=SSIZE_T 
+        __builtin_bswap16=_byteswap_ushort 
+        __builtin_bswap32=_byteswap_ulong 
+        __builtin_bswap64=_byteswap_uint64)
+endif()
+
 FILE(GLOB I2PSAM_SRC ${I2PSAM_SRC_DIR}/*.cpp)
 add_library(i2psam ${I2PSAM_SRC})
 set_target_properties(i2psam PROPERTIES PREFIX "")
+
+if(MSVC)
+    target_compile_definitions(i2psam PRIVATE ssize_t=SSIZE_T)
+endif()
 
 FILE(GLOB LIBLZMA_SRC ${LIBLZMA_SRC_DIR}/*.c)
 add_library(liblzma ${LIBLZMA_SRC})
@@ -43,36 +55,40 @@ set_target_properties(liblzma PROPERTIES PREFIX "")
 
 FILE(GLOB PBOTE_SRC ${PBOTE_SRC_DIR}/*.cpp)
 
-# compiler flags customization (by vendor)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wno-unused-parameter")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -pedantic")
-set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -flto -s -ffunction-sections -fdata-sections")
-set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "-Wl,--gc-sections") # -flto is added from above
+if(MSVC)
+    set (CMAKE_CXX_STANDARD 11)
+else()
+    # compiler flags customization (by vendor)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wno-unused-parameter")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -pedantic")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -flto -s -ffunction-sections -fdata-sections")
+    set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "-Wl,--gc-sections") # -flto is added from above
 
-# check for c++17 & c++11 support
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++17" CXX17_SUPPORTED)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" CXX11_SUPPORTED)
-if (CXX17_SUPPORTED)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-elseif (CXX11_SUPPORTED)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-else ()
-    message(SEND_ERROR "C++17 nor C++11 standard not seems to be supported by compiler. Too old version?")
-endif ()
+    # check for c++17 & c++11 support
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("-std=c++17" CXX17_SUPPORTED)
+    CHECK_CXX_COMPILER_FLAG("-std=c++11" CXX11_SUPPORTED)
+    if (CXX17_SUPPORTED)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+    elseif (CXX11_SUPPORTED)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    else ()
+        message(SEND_ERROR "C++17 nor C++11 standard not seems to be supported by compiler. Too old version?")
+    endif ()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    # more tweaks
-    if (LINUX)
-        set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -stdlib=libstdc++") # required for <atomic>
-        list(APPEND CMAKE_REQUIRED_LIBRARIES "stdc++") # required to link with -stdlib=libstdc++
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe")
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        # more tweaks
+        if (LINUX)
+            set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -stdlib=libstdc++") # required for <atomic>
+            list(APPEND CMAKE_REQUIRED_LIBRARIES "stdc++") # required to link with -stdlib=libstdc++
+        endif ()
+        if (NOT (MSVC OR MSYS OR APPLE))
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-const-variable -Wno-overloaded-virtual -Wno-c99-extensions")
+        endif ()
     endif ()
-    if (NOT (MSVC OR MSYS OR APPLE))
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-const-variable -Wno-overloaded-virtual -Wno-c99-extensions")
-    endif ()
-endif ()
+endif()
 
 # compiler flags customization (by system)
 if (NOT (CMAKE_SYSTEM_NAME STREQUAL "OpenBSD" OR APPLE))
@@ -119,10 +135,13 @@ if (NOT ZLIB_FOUND)
     message(SEND_ERROR "Could not find ZLIB. Please download and install it first!")
 endif ()
 
-find_package(Mimetic REQUIRED)
-if(NOT MIMETIC_FOUND)
-    message(SEND_ERROR "Could not find Mimetic. Please download and install it first!")
-endif()
+# find_package(Mimetic REQUIRED)
+# if(NOT MIMETIC_FOUND)
+#     message(SEND_ERROR "Could not find Mimetic. Please download and install it first!")
+# endif()
+
+set(MIMETIC_INCLUDE_DIRS "C:/Users/grigo/Documents/tools/mimetic-0.9.8")
+set(MIMETIC_LIBRARIES "C:/Users/grigo/Documents/tools/mimetic-0.9.8/win32/libmimetic_d.lib")
 
 # load includes
 include_directories(SYSTEM ${MIMETIC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
@@ -152,6 +171,8 @@ if (NOT MSVC)
     if (WITH_STATIC)
         set_target_properties("${PROJECT_NAME}" PROPERTIES LINK_FLAGS "-static")
     endif ()
+else()
+    target_compile_definitions("${PROJECT_NAME}" PRIVATE ssize_t=SSIZE_T)
 endif ()
 
 # FindBoost pulls pthread for thread which is broken for static linking at least on Ubuntu 15.04
@@ -164,5 +185,7 @@ if (WITH_STATIC)
     set(DL_LIB ${CMAKE_DL_LIBS})
 endif ()
 
-target_link_libraries("${PROJECT_NAME}" libi2pd i2psam liblzma Threads::Threads ZLIB::ZLIB ${MIMETIC_LIBRARIES} ${Boost_LIBRARIES}
+target_link_directories("${PROJECT_NAME}" PRIVATE $ENV{Boost_ROOT}/stage/lib)
+
+target_link_libraries("${PROJECT_NAME}" libi2pd i2psam liblzma Iphlpapi Threads::Threads ZLIB::ZLIB ${MIMETIC_LIBRARIES} ${Boost_LIBRARIES}
     ${OPENSSL_LIBRARIES} ${MINGW_EXTRA} ${DL_LIB} ${CMAKE_REQUIRED_LIBRARIES})

@@ -42,7 +42,7 @@ UDPReceiver::UDPReceiver (const std::string &address, int port)
               .c_str ());
     }
 
-  f_socket = socket (f_addrinfo->ai_family, SOCK_DGRAM | SOCK_CLOEXEC,
+  f_socket = socket (f_addrinfo->ai_family, SOCK_DGRAM, // | SOCK_CLOEXEC
                      f_addrinfo->ai_protocol);
   if (f_socket == -1)
     {
@@ -55,8 +55,9 @@ UDPReceiver::UDPReceiver (const std::string &address, int port)
 
   if ((bind (f_socket, f_addrinfo->ai_addr, f_addrinfo->ai_addrlen)) != 0)
     {
+      int err = WSAGetLastError();
       freeaddrinfo (f_addrinfo);
-      close (f_socket);
+      closesocket(f_socket);
       throw udp_client_server_runtime_error (
           ("Network: UDPReceiver: Could not bind UDP socket with: \"" + address
            + ":" + decimal_port + "\", errcode=" + gai_strerror (errcode))
@@ -72,7 +73,7 @@ UDPReceiver::~UDPReceiver ()
   m_RecvThread = nullptr;
 
   freeaddrinfo (f_addrinfo);
-  close (f_socket);
+  closesocket(f_socket);
 
   m_recvQueue = nullptr;
 }
@@ -108,7 +109,7 @@ UDPReceiver::run ()
 long
 UDPReceiver::recv ()
 {
-  return ::recv (f_socket, m_DatagramRecvBuffer, MAX_DATAGRAM_SIZE, 0);
+  return ::recv (f_socket, (char*)m_DatagramRecvBuffer, MAX_DATAGRAM_SIZE, 0);
 }
 
 void
@@ -191,7 +192,7 @@ UDPSender::UDPSender (const std::string &addr, int port)
   if (f_socket < 0)
     {
       freeaddrinfo (f_addrinfo);
-      close (f_socket);
+      closesocket(f_socket);
       throw udp_client_server_runtime_error (
           ("Network: UDPSender: Can't create socket for " + addr + ":"
            + decimal_port)
@@ -207,7 +208,7 @@ UDPSender::~UDPSender ()
   m_SendThread = nullptr;
 
   freeaddrinfo (f_addrinfo);
-  close (f_socket);
+  closesocket(f_socket);
 
   m_sendQueue = nullptr;
 }

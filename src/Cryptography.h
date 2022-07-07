@@ -73,7 +73,7 @@ class ECDHP256Encryptor : public CryptoKeyEncryptor
   EC_POINT *ec_public_point;
   EC_KEY *ec_shared_key;
 
-  std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint8_t> rbe;
+  std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint16_t> rbe;
 };
 
 class ECDHP256Decryptor : public CryptoKeyDecryptor
@@ -101,7 +101,7 @@ class ECDHP521Encryptor : public CryptoKeyEncryptor
   EC_POINT *ec_public_point;
   EC_KEY *ec_shared_key;
 
-  std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint8_t> rbe;
+  std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint16_t> rbe;
 };
 
 class ECDHP521Decryptor : public CryptoKeyDecryptor
@@ -129,7 +129,7 @@ class X25519Encryptor : public CryptoKeyEncryptor
   EVP_PKEY *public_key;
   EVP_PKEY *shared_key;
 
-  std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint8_t> rbe;
+  std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint16_t> rbe;
 };
 
 class X25519Decryptor : public CryptoKeyDecryptor

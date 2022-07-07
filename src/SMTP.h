@@ -9,10 +9,12 @@
 #ifndef BOTE_SRC_SMTP_H_
 #define BOTE_SRC_SMTP_H_
 
-#include <netinet/in.h>
-#include <poll.h>
+#include <WS2tcpip.h>
+#include <winsock2.h>
+//#include <netinet/in.h>
+//#include <poll.h>
 #include <string>
-#include <sys/socket.h>
+//#include <sys/socket.h>
 #include <sys/types.h>
 
 #include "Email.h"

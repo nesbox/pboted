@@ -44,7 +44,7 @@ void DetectDataDir(const std::string &cmdline_param, bool isService) {
   } else if (home != nullptr && strlen(home) > 0) {
     dataDir = std::string(home) + "/." + appName;
   } else {
-    dataDir = "/tmp/" + appName;
+    dataDir = "." + appName;
   }
 }
 
